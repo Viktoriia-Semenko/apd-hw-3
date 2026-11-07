@@ -27,6 +27,7 @@ For accessibility, I will add the required identifiers, meaningful labels, and D
 - [ ] Consider the optional add/edit/delete functionality after the base requirements are complete.
 - [ ] Run local verification and review GitHub Actions results.
 - [ ] Review the final Git diff, documentation, and evidence before submission.
+- [ ] Complete AGENT_WORKLOG.md with AI tool usage, reviewed recommendations, local test results, and GitHub Actions evidence.
 
 ## Verification Plan
 
