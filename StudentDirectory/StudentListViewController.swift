@@ -37,6 +37,7 @@ final class StudentListViewController: UIViewController {
         }
 
         tableView.dataSource = self
+        tableView.delegate = self
     }
 }
 
@@ -55,4 +56,19 @@ extension StudentListViewController: UITableViewDataSource {
 
         return cell
     }
+}
+
+extension StudentListViewController: UITableViewDelegate {
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+
+        let student = store.students[indexPath.row]
+        let detailViewController = StudentDetailViewController(student: student, store: store)
+        navigationController?.pushViewController(detailViewController, animated: true)
+    }
+}
+
+#Preview {
+    UINavigationController(rootViewController: StudentListViewController(store: StudentStore()))
 }
