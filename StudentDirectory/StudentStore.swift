@@ -1,6 +1,9 @@
 import Foundation
 
 final class StudentStore {
+    // Workaround for an XCTest deinitialisation crash with MainActor isolation
+    nonisolated deinit {}
+
     private(set) var students: [Student]
 
     init(students: [Student] = StudentSeedData.students) {

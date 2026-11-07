@@ -1,4 +1,5 @@
 import XCTest
+import UIKit
 @testable import StudentDirectory
 
 final class StudentStoreTests: XCTestCase {
@@ -93,6 +94,19 @@ final class StudentStoreTests: XCTestCase {
         XCTAssertEqual(store.students, StudentSeedData.students)
     }
 
+    // MARK: - Avatar assets
+
+    func testSeedStudentAvatarsCanBeLoaded() {
+        let appBundle = Bundle(for: StudentStore.self)
+
+        for student in StudentSeedData.students {
+            XCTAssertNotNil(
+                UIImage(named: student.avatarName, in: appBundle, compatibleWith: nil),
+                "Missing avatar asset for \(student.name): \(student.avatarName)"
+            )
+        }
+    }
+
     // MARK: - Delete
 
     func testDeleteStudentRemovesOnlyThatStudent() throws {
@@ -101,8 +115,9 @@ final class StudentStoreTests: XCTestCase {
 
         try store.deleteStudent(id: removed.id)
 
+        let expected = StudentSeedData.students.filter { $0.id != removed.id }
         XCTAssertEqual(store.students.count, 9)
         XCTAssertFalse(store.students.contains { $0.id == removed.id })
-        XCTAssertEqual(store.students.first?.name, "Ada Lovelace")
+        XCTAssertEqual(store.students, expected)
     }
 }
