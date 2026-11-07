@@ -103,7 +103,16 @@ final class StudentDetailViewController: UIViewController {
         button.titleLabel?.adjustsFontForContentSizeCategory = true
         button.accessibilityIdentifier = "subjectButton.\(subject)"
 
+        button.addAction(UIAction { [weak self] _ in
+            self?.showStudents(matching: subject)
+        }, for: .touchUpInside)
+
         return button
+    }
+
+    private func showStudents(matching subject: String) {
+        let listViewController = StudentListViewController(store: store, subject: subject)
+        navigationController?.pushViewController(listViewController, animated: true)
     }
 }
 

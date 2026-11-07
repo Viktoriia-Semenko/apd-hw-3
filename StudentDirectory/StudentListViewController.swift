@@ -4,6 +4,14 @@ import SnapKit
 final class StudentListViewController: UIViewController {
 
     private let store: StudentStore
+    private let subject: String?
+
+    private var students: [Student] {
+        if let subject = subject {
+            return store.students(matchingSubject: subject)
+        }
+        return store.students
+    }
 
     private let tableView: UITableView = {
         let tableView = UITableView()
@@ -15,8 +23,9 @@ final class StudentListViewController: UIViewController {
         return tableView
     }()
 
-    init(store: StudentStore) {
+    init(store: StudentStore, subject: String? = nil) {
         self.store = store
+        self.subject = subject
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -27,7 +36,7 @@ final class StudentListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        title = "Students"
+        title = subject ?? "Students"
         view.backgroundColor = .systemBackground
 
         view.addSubview(tableView)
@@ -44,14 +53,14 @@ final class StudentListViewController: UIViewController {
 extension StudentListViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        store.students.count
+        students.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: StudentCell.reuseIdentifier, for: indexPath)
 
         if let studentCell = cell as? StudentCell {
-            studentCell.configure(with: store.students[indexPath.row])
+            studentCell.configure(with: students[indexPath.row])
         }
 
         return cell
@@ -63,7 +72,7 @@ extension StudentListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        let student = store.students[indexPath.row]
+        let student = students[indexPath.row]
         let detailViewController = StudentDetailViewController(student: student, store: store)
         navigationController?.pushViewController(detailViewController, animated: true)
     }
