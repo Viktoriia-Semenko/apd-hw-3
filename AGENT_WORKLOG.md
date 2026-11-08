@@ -1,17 +1,39 @@
 # HW3 Agent Worklog
 
-If no agent or AI tool was used, say so explicitly. If one was used, record
-each material task, inspect the resulting diff, and record one recommendation
-you rejected or revised; if none was rejectable, explain why.
+**AI tool:** ChatGPT (GPT-6)  
 
-| Date | Tool/task | Student review | Evidence |
-| --- | --- | --- | --- |
-| YYYY-MM-DD | Replace this row with your first entry | Describe the inspection | Command, test, diff, or artifact |
+I used ChatGPT to clarify requirements, discuss UIKit implementation choices, review tests and investigate an XCTest crash. I reviewed the suggestions and made the implementation decisions myself. This log records the assistance discussed in our conversation, rather than a raw chat transcript.
+
+| Date | Tool / model | Task or recommendation | My review and decision | Evidence |
+| --- | --- | --- | --- | --- |
+| 2026-11-07 | ChatGPT (GPT-6) | Asked for a review of `PLAN.md` against the homework requirements. ChatGPT suggested clarifying accessibility details and updating the Milestones section to mention the agent worklog and verification evidence. | I accepted **only the Milestones recommendation** and updated my plan. I did not apply the other suggested changes. | `PLAN.md` — Milestones section. |
+| 2026-11-07 | ChatGPT (GPT-6) | Asked whether `UITableViewDataSource` should read `store.students` directly or use a separate student array. ChatGPT recommended using the shared `StudentStore` as the single source of truth. | I chose to read `store.students` directly for the main list instead of maintaining a duplicate mutable array. | `StudentDirectory/StudentListViewController.swift` — table view data source. |
+| 2026-11-07 | ChatGPT (GPT-6) | Asked whether `UITableView.automaticDimension` was enough for different text sizes. ChatGPT explained that Dynamic Type also needs flexible SnapKit constraints and labels using preferred text styles. | I used automatic row height, Dynamic Type-compatible label fonts, multiline labels and vertical constraints in the custom cell. | `StudentDirectory/StudentListViewController.swift` and `StudentDirectory/StudentCell.swift`. |
+| 2026-11-07 | ChatGPT (GPT-6) | Asked why the student list showed a black screen. ChatGPT suggested checking the app launch lifecycle, `SceneDelegate` and scene configuration under the app target's Info settings. It also explained that the CA launch measurement warnings were not the main error. | I found the cause in **Target → Info**, corrected the scene configuration and confirmed that the student list appeared. | Xcode **StudentDirectory target → Info** scene configuration; successful launch in the simulator. |
+| 2026-11-07 | ChatGPT (GPT-6) | Asked whether every student's avatar should look the same. ChatGPT initially assumed different asset names meant different portraits, then corrected this after I checked the supplied assets. | I inspected the asset catalogue and kept the provided avatars without replacing them. | `Assets.xcassets`; `StudentDirectory/StudentCell.swift` — loading `student.avatarName`. |
+| 2026-11-07 | ChatGPT (GPT-6) | Asked how to open a student's details when a table row is tapped. ChatGPT recommended `UITableViewDelegate.tableView(_:didSelectRowAt:)` and `navigationController?.pushViewController(...)`. | I chose this navigation approach to open `StudentDetailViewController` with normal back navigation. | `StudentDirectory/StudentListViewController.swift`; `StudentDirectory/StudentDetailViewController.swift`. |
+| 2026-11-07 | ChatGPT (GPT-6) | Asked whether the details controller should create a new `StudentStore` or receive the existing one. ChatGPT recommended passing the shared store through the initialiser. | I chose to pass the existing `StudentStore` so both screens use the same student data. | `StudentDirectory/StudentListViewController.swift`; `StudentDirectory/StudentDetailViewController.swift`. |
+| 2026-11-07 | ChatGPT (GPT-6) | Asked how to handle subject-button taps without a separate selector for each subject. ChatGPT recommended adding a `UIAction` closure for each button and using one shared navigation method. | I chose `UIAction` to handle the subject buttons. | `StudentDirectory/StudentDetailViewController.swift` — subject-button actions. |
+| 2026-11-07 | ChatGPT (GPT-6) | Asked how to test that `students(matchingSubject:)` preserves student order and matches subjects case-sensitively. ChatGPT recommended checking a fixed expected name order and testing a differently capitalised subject. It then reviewed my two test methods and suggested an optional additional positive assertion. | I wrote tests using `"Math"` for the expected student order and `"math"` / `"Chemistry"` for empty results. The tests were reviewed as correct; I did not confirm adding the optional extra assertion. | `StudentDirectoryTests/StudentStoreTests.swift` — `testSubjectFilterReturnsMatchingStudentsInStoreOrder` and `testSubjectFilterIsCaseSensitiveAndUnknownSubjectIsEmpty`. |
+| 2026-11-07 | ChatGPT (GPT-6) | Asked for help interpreting a failing terminal test run. ChatGPT identified repeated `malloc: pointer being freed was not allocated` crashes in the unit-test process, while the UI tests passed, and recommended isolating a starter test. | I ran the isolated test and confirmed that it still crashed. This showed that the issue was not limited to my new assertions. | Local test output; `StudentDirectoryTests/StudentStoreTests.swift`; `StudentDirectoryUITests/StudentDirectoryFlowUITests.swift`. |
+| 2026-11-07 | ChatGPT (GPT-6) | Discussed a possible Swift actor-isolation/XCTest deinitialisation issue. ChatGPT suggested checking the `MainActor` build setting and, when I asked about it, recommended trying an empty `nonisolated deinit {}` in `StudentStore` as a narrower workaround. | I added `nonisolated deinit {}` to `StudentStore` and reran the tests. The crashes stopped and I confirmed that the tests passed. | `StudentDirectory/StudentStore.swift` — `nonisolated deinit {}`; successful local tests (confirmed in conversation). |
+| 2026-11-07 | ChatGPT (GPT-6) | Asked how to refresh the student list after editing a student for the bonus task. ChatGPT recommended calling `tableView.reloadData()` from `viewWillAppear(_:)`, using the existing shared store. | I accepted this approach for refreshing the list after returning from the details screen. | `StudentDirectory/StudentListViewController.swift` — `viewWillAppear(_:)`. |
+| 2026-11-08 | ChatGPT (GPT-6)| Asked why GitHub Actions failed while local XCTest passed. ChatGPT identified a Swift compiler compatibility issue with nonisolated deinit {} and recommended conditional compilation using #if compiler(>=6.2) | Accepted the conditional compilation approach to retain the local workaround while supporting Xcode 16.4 in CI. CI verification is successful. | StudentDirectory/StudentStore.swift, GitHub Actions build log |
 
 ## Final review
 
-- Agent/tool disclosure:
-- Accepted and rejected/revised recommendations:
-- Exact local test command and result:
-- CI URL/status:
-- Known limitation or remaining risk:
+- **Exact local test command and result:**
+
+  ```bash
+  xcodebuild -project StudentDirectory.xcodeproj \
+    -scheme StudentDirectory \
+    -destination 'platform=iOS Simulator,name=iPhone 17' \
+    -parallel-testing-enabled NO \
+    test
+  ```
+
+  **TEST SUCCEEDED** on 2026-11-08: 10 unit tests and 10 UI tests passed, with 0 failures (20 tests in total), including the bonus tests. Full evidence in artifacts/tests_result.txt
+
+- **CI URL/status:** [GitHub Actions run #42470832493](https://github.com/Viktoriia-Semenko/apd-hw-3/actions/runs/42470832493) — **Success**. The GitHub Actions workflow completed successfully after fixing the Swift compiler compatibility issue.
+
+- **Known limitation or remaining risk:** Local parallel UI-test runs previously caused simulator launch delays and watchdog timeouts. All 20 tests passed with parallel testing disabled. The `nonisolated deinit {}` workaround is conditionally compiled for Swift 6.2 and later to avoid the deallocation crash observed with default `MainActor` isolation while maintaining compatibility with Xcode 16.4 in CI.
