@@ -18,16 +18,17 @@ For accessibility, I will add the required identifiers, meaningful labels, and D
 
 ## Milestones
 
-- [ ] Build the student list using `UITableView` and a reusable custom cell.
-- [ ] Display each student's avatar, name, age, average grade, and scholarship status.
-- [ ] Create a student detail screen and navigation using `UINavigationController`.
-- [ ] Implement subject filtering and the filtered student list.
-- [ ] Add accessibility identifiers and support Dynamic Type.
-- [ ] Add at least six meaningful XCTest methods covering model/store logic and UI behaviour.
-- [ ] Consider the optional add/edit/delete functionality after the base requirements are complete.
-- [ ] Run local verification and review GitHub Actions results.
-- [ ] Review the final Git diff, documentation, and evidence before submission.
-- [ ] Complete AGENT_WORKLOG.md with AI tool usage, reviewed recommendations, local test results, and GitHub Actions evidence.
+- [x] Build the student list using `UITableView` and a reusable custom cell.
+- [x] Display each student's avatar, name, age, average grade, and scholarship status.
+- [x] Create a student detail screen and navigation using `UINavigationController`.
+- [x] Implement subject filtering and the filtered student list.
+- [x] Add accessibility identifiers and support Dynamic Type.
+- [x] Add at least six meaningful XCTest methods covering model/store logic and UI behaviour.
+- [x] Consider the optional add/edit/delete functionality after the base requirements are complete.
+- [x] Run local verification and review GitHub Actions results.
+- [x] Review the final Git diff, documentation, and evidence before submission.
+- [x] Complete AGENT_WORKLOG.md with AI tool usage, reviewed recommendations, local test results, and GitHub Actions evidence.
+- [x] Complete optional add/edit/delete functionality.
 
 ## Verification Plan
 
