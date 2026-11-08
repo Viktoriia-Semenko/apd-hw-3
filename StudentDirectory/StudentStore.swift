@@ -2,7 +2,9 @@ import Foundation
 
 final class StudentStore {
     // Workaround for an XCTest deinitialisation crash with MainActor isolation
-    nonisolated deinit {}
+    #if compiler(>=6.2)
+        nonisolated deinit {}
+    #endif
 
     private(set) var students: [Student]
 
