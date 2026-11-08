@@ -39,6 +39,13 @@ final class StudentListViewController: UIViewController {
         title = subject ?? "Students"
         view.backgroundColor = .systemBackground
 
+        if subject == nil {
+            let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
+            addButton.accessibilityIdentifier = "addStudentButton"
+            addButton.accessibilityLabel = "Add student"
+            navigationItem.rightBarButtonItem = addButton
+        }
+
         view.addSubview(tableView)
 
         tableView.snp.makeConstraints {
@@ -47,6 +54,28 @@ final class StudentListViewController: UIViewController {
 
         tableView.dataSource = self
         tableView.delegate = self
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        tableView.reloadData()
+    }
+
+    @objc private func addTapped() {
+        let alert = StudentFormAlert.make(title: "Add Student", name: "", age: "") { [weak self] name, age in
+            self?.addStudent(name: name, age: age)
+        }
+        present(alert, animated: true)
+    }
+
+    private func addStudent(name: String, age: Int) {
+        do {
+            try store.addStudent(name: name, age: age)
+            tableView.reloadData()
+            tableView.scrollToRow(at: IndexPath(row: students.count - 1, section: 0), at: .bottom, animated: true)
+        } catch {
+            present(StudentFormAlert.makeError(error), animated: true)
+        }
     }
 }
 
@@ -64,6 +93,23 @@ extension StudentListViewController: UITableViewDataSource {
         }
 
         return cell
+    }
+
+    func tableView(
+        _ tableView: UITableView,
+        commit editingStyle: UITableViewCell.EditingStyle,
+        forRowAt indexPath: IndexPath
+    ) {
+        guard editingStyle == .delete else { return }
+
+        let student = students[indexPath.row]
+
+        do {
+            try store.deleteStudent(id: student.id)
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+        } catch {
+            present(StudentFormAlert.makeError(error), animated: true)
+        }
     }
 }
 

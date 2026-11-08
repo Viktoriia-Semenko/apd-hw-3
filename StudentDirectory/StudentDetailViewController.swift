@@ -3,7 +3,7 @@ import SnapKit
 
 final class StudentDetailViewController: UIViewController {
 
-    private let student: Student
+    private var student: Student
     private let store: StudentStore
 
     private let scrollView = UIScrollView()
@@ -26,6 +26,9 @@ final class StudentDetailViewController: UIViewController {
         return imageView
     }()
 
+    private lazy var nameLabel = makeLabel("", style: .title2)
+    private lazy var ageLabel = makeLabel("", style: .body)
+
     init(student: Student, store: StudentStore) {
         self.student = student
         self.store = store
@@ -39,21 +42,22 @@ final class StudentDetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        title = student.name
         view.backgroundColor = .systemBackground
         view.accessibilityIdentifier = "studentDetails"
 
-        avatarImageView.image = UIImage(named: student.avatarName)
+        let editButton = UIBarButtonItem(title: "Edit", style: .plain, target: self, action: #selector(editTapped))
+        editButton.accessibilityIdentifier = "editStudentButton"
+        navigationItem.rightBarButtonItem = editButton
+
         avatarImageView.isAccessibilityElement = true
-        avatarImageView.accessibilityLabel = "\(student.name) avatar"
 
         view.addSubview(scrollView)
         scrollView.addSubview(stackView)
 
         stackView.addArrangedSubview(avatarImageView)
-        stackView.addArrangedSubview(makeLabel(student.name, style: .title2))
+        stackView.addArrangedSubview(nameLabel)
         stackView.addArrangedSubview(makeLabel("ID: \(student.id.uuidString)", style: .footnote))
-        stackView.addArrangedSubview(makeLabel("Age: \(student.age)", style: .body))
+        stackView.addArrangedSubview(ageLabel)
         stackView.addArrangedSubview(makeLabel("Average grade: \(String(format: "%.1f", student.averageGrade))", style: .body))
         stackView.addArrangedSubview(makeLabel("Scholarship: \(student.isScholarshipHolder ? "Yes" : "No")", style: .body))
         stackView.addArrangedSubview(makeLabel("Avatar: \(student.avatarName)", style: .body))
@@ -83,6 +87,41 @@ final class StudentDetailViewController: UIViewController {
 
         avatarImageView.snp.makeConstraints {
             $0.size.equalTo(100)
+        }
+
+        showStudent()
+    }
+
+    private func showStudent() {
+        title = student.name
+        nameLabel.text = student.name
+        ageLabel.text = "Age: \(student.age)"
+        avatarImageView.image = UIImage(named: student.avatarName)
+        avatarImageView.accessibilityLabel = "\(student.name) avatar"
+    }
+
+    @objc private func editTapped() {
+        let alert = StudentFormAlert.make(
+            title: "Edit Student",
+            name: student.name,
+            age: String(student.age)
+        ) { [weak self] name, age in
+            self?.saveChanges(name: name, age: age)
+        }
+        present(alert, animated: true)
+    }
+
+    private func saveChanges(name: String, age: Int) {
+        do {
+            try store.updateStudent(id: student.id, name: name, age: age)
+        } catch {
+            present(StudentFormAlert.makeError(error), animated: true)
+            return
+        }
+
+        if let updated = store.students.first(where: { $0.id == student.id }) {
+            student = updated
+            showStudent()
         }
     }
 
